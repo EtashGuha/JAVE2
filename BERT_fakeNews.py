@@ -123,7 +123,7 @@ def compute_accuracy(model, dataloader, device):
 # In[20]:
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 torch.cuda.empty_cache() #memory
 gc.collect() #memory
 NUM_EPOCHS = 3
@@ -197,7 +197,8 @@ wrong_results = final_results.loc[final_results["predicted"]!=final_results["act
 
 print("Number of incorrectly classified articles:", len(wrong_results))
 
-
+model.save_pretrained("blah")
+tokenizer.save_pretrained("blahtoken")
 # #### This displays the incorrectly predicted instances, along with the percent confidence the algorithm had in each instance. The threshold for classification is 50%. Instances closer to 100% are more confident it"s real news and instances closer to 0% are more confident it"s fake news.
 
 # In[ ]:
