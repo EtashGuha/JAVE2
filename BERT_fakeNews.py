@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # **Using a BERT Model to Predict Fake News**
-
-# In[ ]:
-
-
-
-
-
-# In[2]:
 
 
 import pandas as pd
@@ -21,35 +9,8 @@ import torch.utils.data as data_utils
 import torch.optim as optim
 import gc #garbage collector for gpu memory 
 from tqdm import tqdm
-
-
-# #### The BERT package (transformers) has to be installed and run
-
-# In[3]:
-
-
-get_ipython().run_cell_magic('capture', '', '!pip install transformers')
-
-
-# #### Import the library specific to running BERT models on PyTorch. The transformers package using the existing PyTorch infrastructure to recreate the BERT model architecture.
-
-# In[4]:
-
-
-get_ipython().run_cell_magic('capture', '', 'from transformers import BertForSequenceClassification, BertTokenizer\ndevice = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")')
-
-
-# #### Read in the news data through the csv file. The following columns are not relevant for this endeavor:
-# 
-# *   ID - this is meaningless and could cause overfitting
-# *   Title - for this experiment we'll choose to omit it
-# 
-# 
-# 
-
-# In[5]:
-
-
+from transformers import BertForSequenceClassification, BertTokenizer
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 import pandas as pd
 news_data = pd.read_csv("news.csv",header=0)
 def label_target(row):
@@ -63,14 +24,6 @@ del news_data['id']
 del news_data['title']
 
 
-# #### This is a preview of the data once the irrelevant columns have been removed. 
-
-# In[6]:
-
-
-news_data.head(10)
-
-
 # #### The transformers package comes with a tokenizer for each model. We'll use the BERT tokenizer here and a BERT base model where the text isn't modified for case.
 
 # In[7]:
@@ -78,50 +31,25 @@ news_data.head(10)
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 
-
-# #### Tokenizing the data so that each sentence is split into words and symbols. Also '[CLS]' and '[SEP]' to the beginning and end of every article.
-
-# In[8]:
-
-
 tokenized_df = list(map(lambda t: ['[CLS]'] + tokenizer.tokenize(t)[:510] + ['[SEP]'], news_data['text']))
-
-
-# #### The max input length for a BERT algorithm is 512, so we'll have to pad each article to this length or cut it short.
-
-# In[9]:
 
 
 totalpadlength = 512
 
 
-# #### We need to get the index for each token so that we can map them to be put in a matrix embedding.
-
-# In[10]:
-
 
 indexed_tokens = list(map(tokenizer.convert_tokens_to_ids, tokenized_df))
 
 
-# In[11]:
 
 
 index_padded = np.array([xi+[0]*(totalpadlength-len(xi)) for xi in indexed_tokens])
 
 
-# #### Setting up an array with the binary target variable values
-# * 0 = FAKE
-# * 1 = REAL
-
-# In[12]:
-
 
 target_variable = news_data['target'].values
 
 
-# #### Creating dictionaries that map the tokens to the index and the index to the token.
-
-# In[13]:
 
 
 all_words = []
@@ -135,17 +63,7 @@ word_to_ix = dict(zip(all_words, all_indices))
 ix_to_word = dict(zip(all_indices, all_words))
 
 
-# #### The BERT algorithm relies on masking to help it learn and to prevent overfitting, so we'll add this to the model.
-
-# In[14]:
-
-
 mask_variable = [[float(i>0) for i in ii] for ii in index_padded]
-
-
-# #### This loads the data into train and test dataloaders, which for PyTorch is necessary to iterate through the algorithm.
-
-# In[15]:
 
 
 BATCH_SIZE = 14
@@ -169,26 +87,14 @@ trainloader = format_tensors(X_train, train_masks, y_train,BATCH_SIZE)
 testloader = format_tensors(X_test, test_masks, y_test, BATCH_SIZE)
 
 
-# #### This is a sample batch from the trainloader. The first tensor contains the embeddings for the articles, the second tensor contains the masking information, and the third tensor contains the target variables for each article.
 
-# In[16]:
 
 
 next(iter(trainloader))
 
 
-# 
-# ### Now it's time to create the BERT Model!
-
-# #### The BERT model architecture is shown below. This is a BERT base-cased model, which means it has 12 BERT transformer layers, 768 hidden layers, 12 heads, 110M parameters, and is pre-trained on cased English text.
-# 
-
-# In[21]:
-
 
 model = BertForSequenceClassification.from_pretrained('bert-base-cased')
-model
-
 
 # #### Creating a function to compute the accuracy after each epoch
 
@@ -258,12 +164,6 @@ for epoch in range(NUM_EPOCHS):
 
 # In[ ]:
 
-
-with torch.set_grad_enabled(False):
-  print(f'\n\nTest Accuracy:'
-  f'{compute_accuracy(model, testloader, device):.2f}%')
-
-
 # #### We then do some error analysis by gathering the articles that were incorrectly predicted and analyzing the text of the articles.
 
 # In[ ]:
@@ -306,8 +206,3 @@ print('Number of incorrectly classified articles:', len(wrong_results))
 # #### This displays the incorrectly predicted instances, along with the percent confidence the algorithm had in each instance. The threshold for classification is 50%. Instances closer to 100% are more confident it's real news and instances closer to 0% are more confident it's fake news.
 
 # In[ ]:
-
-
-wrong_results.loc[:,'text_short'] = wrong_results.loc[:,'text'].apply(lambda x: x[:500])
-wrong_results.loc[:,('text_short', 'percent','predicted','actual')].style.set_properties(subset=['text_short'], **{'width': '1000px', 'white-space':'pre-wrap'})
-
