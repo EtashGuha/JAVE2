@@ -146,8 +146,8 @@ for epoch in range(NUM_EPOCHS):
         del token_ids, masks, labels #memory
     
         if not i%25:
-            print(f'Epoch: {epoch+1:03d}/{NUM_EPOCHS:03d} | '
-                  f'Batch {i+1:03d}/{len(trainloader):03d} | '
+            print(f'Epoch: {epoch+1:03d}/{NUM_EPOCHS:03d} | ' + 
+                  f'Batch {i+1:03d}/{len(trainloader):03d} | ' + 
                   f'Average Loss in last {iteration} iteration(s): {(running_loss/iteration):.4f}')
             running_loss = 0.0
             iteration = 0
