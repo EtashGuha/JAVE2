@@ -146,17 +146,12 @@ for epoch in range(NUM_EPOCHS):
         del token_ids, masks, labels #memory
     
         if not i%25:
-            print(f"Epoch: {epoch+1:03d}/{NUM_EPOCHS:03d} | " + 
-                  f"Batch {i+1:03d}/{len(trainloader):03d} | " + 
-                  f"Average Loss in last {iteration} iteration(s): {(running_loss/iteration):.4f}")
+            print(f"Epoch: {epoch+1:03d}/{NUM_EPOCHS:03d} |") 
             running_loss = 0.0
             iteration = 0
         torch.cuda.empty_cache() #memory
         gc.collect() #memory
         losses.append(float(loss.item()))
-    with torch.set_grad_enabled(False):
-        print(f"\nTraining Accuracy: "
-              f"{compute_accuracy(model, trainloader, device):.2f}%")
         
 
 
