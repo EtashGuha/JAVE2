@@ -146,7 +146,6 @@ for epoch in range(NUM_EPOCHS):
         del token_ids, masks, labels #memory
     
         if not i%25:
-            print(f"Epoch: {epoch+1:03d}/{NUM_EPOCHS:03d} |") 
             running_loss = 0.0
             iteration = 0
         torch.cuda.empty_cache() #memory
