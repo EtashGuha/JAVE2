@@ -4,29 +4,29 @@ class ArticleList():
 		self.model = model
 		self.topicfreq = topicfreq
 
-	def add(self, article, url):
+	def add(self, article, image, title, url):
 		modelScore = self.model.predict(article)
 		freqScore = self.topicfreq.predict(article)
 		upvotes = 0
 		downvotes = 0
 		socScore = self.socialScore(upvotes, downvotes)
 		totalScore = (modelScore + freqScore + socScore)/3
-		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url)
+		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title)
 		return
 	def socialScore(self, num_up, num_down):
 		return (num_up + 1)/(num_down + 1)
 
 	def upvote(self, article):
-		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url = self.articles[article]
+		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title = self.articles[article]
 		upvotes += 1
 		socScore = self.socialScore(upvotes, downvotes) 
-		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url)
+		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title)
 
 	def downvote(self, article):
-		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url = self.articles[article]
+		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title = self.articles[article]
 		downvotes += 1
 		socScore = self.socialScore(upvotes, downvotes) 
-		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url)
+		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title)
 
 	def getList(self):
 		output = list(self.articles.items())
@@ -43,4 +43,6 @@ class ArticleList():
 		final["upvotes"] = output[1][4]
 		final["downvotes"] = output[1][5]
 		final["url"] = output[1][6]
+		final["image"] = output[1][7]
+		final["title"] = output[1][8]
 		return final

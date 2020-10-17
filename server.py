@@ -18,7 +18,7 @@ def home():
 	article = Article(url)
 	article.download()
 	article.parse()
-	article_list.add(article.text, url)
+	article_list.add(article.text, article.top_image, article.title, url)
 	return 'a string'
 
 @app.route('/', methods=['GET'])
