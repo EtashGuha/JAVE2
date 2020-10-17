@@ -4,29 +4,43 @@ class ArticleList():
 		self.model = model
 		self.topicfreq = topicfreq
 
-	def add(article):
-		modelScore = model.predict(article)
-		freqScore = topicfreq.predict(article)
+	def add(self, article, url):
+		modelScore = self.model.predict(article)
+		freqScore = self.topicfreq.predict(article)
 		upvotes = 0
 		downvotes = 0
-		socScore = socialScore(upvotes, downvotes)
+		socScore = self.socialScore(upvotes, downvotes)
 		totalScore = (modelScore + freqScore + socScore)/3
-		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes)
-
+		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url)
+		return
 	def socialScore(self, num_up, num_down):
 		return (num_up + 1)/(num_down + 1)
 
-	def upvote(article):
-		totalScore, modelScore, freqScore, socScore, upvotes, downvotes = self.articles[article]
+	def upvote(self, article):
+		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url = self.articles[article]
 		upvotes += 1
-		socScore = socialScore(upvotes, downvotes) 
-		self.articles[article] = totalScore, modelScore, freqScore, socScore, upvotes, downvotes
+		socScore = self.socialScore(upvotes, downvotes) 
+		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url)
 
-	def downvote(article):
-		totalScore, modelScore, freqScore, socScore, upvotes, downvotes = self.articles[article]
+	def downvote(self, article):
+		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url = self.articles[article]
 		downvotes += 1
-		socScore = socialScore(upvotes, downvotes) 
-		self.articles[article] = totalScore, modelScore, freqScore, socScore, upvotes, downvotes
+		socScore = self.socialScore(upvotes, downvotes) 
+		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url)
 
-	def getList():
-		{k: v for k, v in sorted(x.items(), key=lambda item: item[1])}
+	def getList(self):
+		output = list(self.articles.items())
+		output.sort(key = lambda x: x[1][0])  
+		return list(map(self.label, output))
+
+	def label(self, output):
+		final = {}
+		final["text"] = output[0]
+		final["totalScore"] = output[1][0]
+		final["modelScore"] = output[1][1]
+		final["freqScore"] = output[1][2]
+		final["socScore"] = output[1][3]
+		final["upvotes"] = output[1][4]
+		final["downvotes"] = output[1][5]
+		final["url"] = output[1][6]
+		return final

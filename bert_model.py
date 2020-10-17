@@ -35,6 +35,6 @@ class BertModel():
 		index_padded = torch.from_numpy(index_padded)
 		index_padded = index_padded.long()
 		mask_variable = torch.tensor(mask_variable)
-		_, yhat = self.model(input_ids=index_padded, attention_mask=mask_variable, labels=labels)
-		prediction = (torch.sigmoid(yhat[:,1]) > 0.5).long().view(-1,1)
+		_, yhat = self.model(input_ids=index_padded, attention_mask=mask_variable, labels=torch.tensor([[1]]))
+		prediction = (torch.sigmoid(yhat[:,1])).long().view(-1,1)
 		return prediction.item()
