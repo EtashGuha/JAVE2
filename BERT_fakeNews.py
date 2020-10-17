@@ -64,7 +64,7 @@ ix_to_word = dict(zip(all_indices, all_words))
 
 
 mask_variable = [[float(i>0) for i in ii] for ii in index_padded]
-
+print("HELLO")
 
 BATCH_SIZE = 14
 def format_tensors(text_data, mask, labels, batch_size):
@@ -137,6 +137,7 @@ for epoch in range(NUM_EPOCHS):
     iteration = 0
     for i, batch in enumerate(trainloader):
         iteration += 1
+        print(iteration)
         token_ids, masks, labels = tuple(t.to(device) for t in batch)
         optimizer.zero_grad()
         loss, yhat = model(input_ids=token_ids, attention_mask=masks, labels=labels)
