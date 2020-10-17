@@ -13,8 +13,8 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class BertModel():
 	def __init__(self):
-		self.tokenizer = BertTokenizer.from_pretrained('blahtoken')
-		self.model = BertForSequenceClassification.from_pretrained('blah')
+		self.tokenizer = BertTokenizer.from_pretrained('models/blahtoken')
+		self.model = BertForSequenceClassification.from_pretrained('models/blah')
 
 	def predict(self, article):
 		test_news_data = pd.DataFrame({"text": article}, index=[0])
@@ -36,5 +36,5 @@ class BertModel():
 		index_padded = index_padded.long()
 		mask_variable = torch.tensor(mask_variable)
 		_, yhat = self.model(input_ids=index_padded, attention_mask=mask_variable, labels=torch.tensor([[1]]))
-		prediction = (torch.sigmoid(yhat[:,1])).long().view(-1,1)
+		prediction = torch.sigmoid(yhat[:,1])
 		return prediction.item()

@@ -1,3 +1,5 @@
+import math
+
 class ArticleList():
 	def __init__(self, model, topicfreq):
 		self.articles = {}
@@ -14,7 +16,7 @@ class ArticleList():
 		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title)
 		return
 	def socialScore(self, num_up, num_down):
-		return (num_up + 1)/(num_down + 1)
+		return math.atan((num_up + 1)/(num_down + 1)) * 2/math.pi
 
 	def upvote(self, article):
 		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title = self.articles[article]
