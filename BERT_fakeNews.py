@@ -131,10 +131,14 @@ loss_function = nn.BCEWithLogitsLoss()
 losses = []
 model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=3e-6)
+print("NUM EPOCHS")
+print(NUM_EPOCHS)
 for epoch in range(NUM_EPOCHS):
     model.train()
     running_loss = 0.0
     iteration = 0
+    print("epoch")
+    print(epoch)
     for i, batch in enumerate(trainloader):
         iteration += 1
         print(iteration)
@@ -153,49 +157,6 @@ for epoch in range(NUM_EPOCHS):
         gc.collect() #memory
         losses.append(float(loss.item()))
         
-
-
-# #### Finally, we score the final model on the test set
-
-# In[ ]:
-
-# #### We then do some error analysis by gathering the articles that were incorrectly predicted and analyzing the text of the articles.
-
-# In[ ]:
-
-
-test_predictions = torch.zeros((len(y_test),1))
-test_predictions_percent = torch.zeros((len(y_test),1))
-with torch.no_grad():
-  for i, batch in enumerate(tqdm(testloader)):
-    token_ids, masks, labels = tuple(t.to(device) for t in batch)
-    _, yhat = model(input_ids=token_ids, attention_mask=masks, labels=labels)
-    prediction = (torch.sigmoid(yhat[:,1]) > 0.5).long().view(-1,1)
-    test_predictions[i*BATCH_SIZE:(i+1)*BATCH_SIZE] = prediction
-    test_predictions_percent[i*BATCH_SIZE:(i+1)*BATCH_SIZE] = torch.sigmoid(yhat[:,1]).view(-1,1)
-
-
-# In[ ]:
-
-
-X_train_words, X_test_words, y_train_words, y_test_words = train_test_split(news_data["text"], target_variable, 
-                                                    test_size=0.1, random_state=42)
-
-
-# In[ ]:
-
-
-final_results = X_test_words.to_frame().reset_index(drop=True)
-final_results["predicted"] = np.array(test_predictions.reshape(-1), dtype=int).tolist()
-final_results["percent"] = np.array(test_predictions_percent.reshape(-1), dtype=float).tolist()
-final_results["actual"] = y_test_words
-wrong_results = final_results.loc[final_results["predicted"]!=final_results["actual"]].copy()
-
-
-# In[ ]:
-
-
-print("Number of incorrectly classified articles:", len(wrong_results))
 
 model.save_pretrained("blah")
 tokenizer.save_pretrained("blahtoken")
