@@ -19,19 +19,19 @@ def label_target(row):
     else:
         return 1
 news_data["target"] = news_data.apply(lambda row: label_target(row), axis=1)
-news_data.columns = ['id','title','text','target_names','target']
-del news_data['id']
-del news_data['title']
+news_data.columns = ["id","title","text","target_names","target"]
+del news_data["id"]
+del news_data["title"]
 
 
-# #### The transformers package comes with a tokenizer for each model. We'll use the BERT tokenizer here and a BERT base model where the text isn't modified for case.
+# #### The transformers package comes with a tokenizer for each model. We"ll use the BERT tokenizer here and a BERT base model where the text isn"t modified for case.
 
 # In[7]:
 
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
+tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
-tokenized_df = list(map(lambda t: ['[CLS]'] + tokenizer.tokenize(t)[:510] + ['[SEP]'], news_data['text']))
+tokenized_df = list(map(lambda t: ["[CLS]"] + tokenizer.tokenize(t)[:510] + ["[SEP]"], news_data["text"]))
 
 
 totalpadlength = 512
@@ -47,7 +47,7 @@ index_padded = np.array([xi+[0]*(totalpadlength-len(xi)) for xi in indexed_token
 
 
 
-target_variable = news_data['target'].values
+target_variable = news_data["target"].values
 
 
 
@@ -94,7 +94,7 @@ next(iter(trainloader))
 
 
 
-model = BertForSequenceClassification.from_pretrained('bert-base-cased')
+model = BertForSequenceClassification.from_pretrained("bert-base-cased")
 
 # #### Creating a function to compute the accuracy after each epoch
 
@@ -146,17 +146,17 @@ for epoch in range(NUM_EPOCHS):
         del token_ids, masks, labels #memory
     
         if not i%25:
-            print(f'Epoch: {epoch+1:03d}/{NUM_EPOCHS:03d} | ' + 
-                  f'Batch {i+1:03d}/{len(trainloader):03d} | ' + 
-                  f'Average Loss in last {iteration} iteration(s): {(running_loss/iteration):.4f}')
+            print(f"Epoch: {epoch+1:03d}/{NUM_EPOCHS:03d} | " + 
+                  f"Batch {i+1:03d}/{len(trainloader):03d} | " + 
+                  f"Average Loss in last {iteration} iteration(s): {(running_loss/iteration):.4f}")
             running_loss = 0.0
             iteration = 0
         torch.cuda.empty_cache() #memory
         gc.collect() #memory
         losses.append(float(loss.item()))
     with torch.set_grad_enabled(False):
-        print(f'\nTraining Accuracy: '
-              f'{compute_accuracy(model, trainloader, device):.2f}%')
+        print(f"\nTraining Accuracy: "
+              f"{compute_accuracy(model, trainloader, device):.2f}%")
         
 
 
@@ -183,7 +183,7 @@ with torch.no_grad():
 # In[ ]:
 
 
-X_train_words, X_test_words, y_train_words, y_test_words = train_test_split(news_data['text'], target_variable, 
+X_train_words, X_test_words, y_train_words, y_test_words = train_test_split(news_data["text"], target_variable, 
                                                     test_size=0.1, random_state=42)
 
 
@@ -191,18 +191,18 @@ X_train_words, X_test_words, y_train_words, y_test_words = train_test_split(news
 
 
 final_results = X_test_words.to_frame().reset_index(drop=True)
-final_results['predicted'] = np.array(test_predictions.reshape(-1), dtype=int).tolist()
-final_results['percent'] = np.array(test_predictions_percent.reshape(-1), dtype=float).tolist()
-final_results['actual'] = y_test_words
-wrong_results = final_results.loc[final_results['predicted']!=final_results['actual']].copy()
+final_results["predicted"] = np.array(test_predictions.reshape(-1), dtype=int).tolist()
+final_results["percent"] = np.array(test_predictions_percent.reshape(-1), dtype=float).tolist()
+final_results["actual"] = y_test_words
+wrong_results = final_results.loc[final_results["predicted"]!=final_results["actual"]].copy()
 
 
 # In[ ]:
 
 
-print('Number of incorrectly classified articles:', len(wrong_results))
+print("Number of incorrectly classified articles:", len(wrong_results))
 
 
-# #### This displays the incorrectly predicted instances, along with the percent confidence the algorithm had in each instance. The threshold for classification is 50%. Instances closer to 100% are more confident it's real news and instances closer to 0% are more confident it's fake news.
+# #### This displays the incorrectly predicted instances, along with the percent confidence the algorithm had in each instance. The threshold for classification is 50%. Instances closer to 100% are more confident it"s real news and instances closer to 0% are more confident it"s fake news.
 
 # In[ ]:
