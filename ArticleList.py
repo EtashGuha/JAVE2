@@ -5,8 +5,8 @@ class ArticleList():
 		self.topicfreq = topicfreq
 
 	def add(article):
-		modelScore = model(article)
-		freqScore = topicfreq(article)
+		modelScore = model.predict(article)
+		freqScore = topicfreq.predict(article)
 		upvotes = 0
 		downvotes = 0
 		socScore = socialScore(upvotes, downvotes)
@@ -27,3 +27,6 @@ class ArticleList():
 		downvotes += 1
 		socScore = socialScore(upvotes, downvotes) 
 		self.articles[article] = totalScore, modelScore, freqScore, socScore, upvotes, downvotes
+
+	def getList():
+		{k: v for k, v in sorted(x.items(), key=lambda item: item[1])}
