@@ -1,10 +1,19 @@
 import math
+import pickle
+import os
+import sys
 
 class ArticleList():
 	def __init__(self, model, topicfreq):
 		self.articles = {}
 		self.model = model
 		self.topicfreq = topicfreq
+		print(os.path.exists("important"))
+		if os.path.exists("important"):
+			file = open('important', 'rb')
+			self.articles = pickle.load(file)
+			file.close()
+
 
 	def add(self, article, image, title, url):
 		modelScore = self.model.predict(article)
@@ -14,7 +23,8 @@ class ArticleList():
 		socScore = self.socialScore(upvotes, downvotes)
 		totalScore = (modelScore + freqScore + socScore)/3
 		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title)
-		return
+		self.save()
+
 	def socialScore(self, num_up, num_down):
 		return math.atan((num_up + 1)/(num_down + 1)) * 2/math.pi
 
@@ -22,13 +32,17 @@ class ArticleList():
 		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title = self.articles[article]
 		upvotes += 1
 		socScore = self.socialScore(upvotes, downvotes) 
+		totalScore = (modelScore + freqScore + socScore)/3
 		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title)
+		self.save()
 
 	def downvote(self, article):
 		totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title = self.articles[article]
 		downvotes += 1
 		socScore = self.socialScore(upvotes, downvotes) 
+		totalScore = (modelScore + freqScore + socScore)/3
 		self.articles[article] = (totalScore, modelScore, freqScore, socScore, upvotes, downvotes, url, image, title)
+		self.save()
 
 	def getList(self):
 		output = list(self.articles.items())
@@ -48,3 +62,12 @@ class ArticleList():
 		final["image"] = output[1][7]
 		final["title"] = output[1][8]
 		return final
+
+	def save(self):
+		file = open('important', 'wb')
+
+		# dump information to that file
+		pickle.dump(self.articles, file)
+
+		# close the file
+		file.close()
