@@ -17,7 +17,7 @@ class ArticleList():
 
 	def add(self, article, image, title, url):
 		modelScore = self.model.predict(article)
-		freqScore = self.topicfreq.predict(article)
+		freqScore = modelScore
 		upvotes = 0
 		downvotes = 0
 		socScore = self.socialScore(upvotes, downvotes)
